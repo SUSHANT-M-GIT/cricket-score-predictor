@@ -4,9 +4,9 @@ main.py
 CLI entry point for the Cricket Score + Winner Prediction System.
 
 Usage:
-    python main.py            →  interactive prediction
-    python main.py --train    →  (re)train both models first, then predict
-    python main.py --help     →  usage info
+    python main.py            ->  interactive prediction
+    python main.py --train    ->  (re)train both models first, then predict
+    python main.py --help     ->  usage info
 """
 
 import sys
@@ -18,14 +18,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 _ROOT = os.path.dirname(__file__)
 
 
-# ── CLI helpers ───────────────────────────────────────────────────────────────
+# -- CLI helpers ---------------------------------------------------------------
 
 def _banner() -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════╗")
-    print("║   🏏  CRICKET SCORE + WINNER PREDICTION SYSTEM  🏏       ║")
-    print("║          T20 Match · Regression + Classification         ║")
-    print("╚══════════════════════════════════════════════════════════╝")
+    print("+==========================================================+")
+    print("|   🏏  CRICKET SCORE + WINNER PREDICTION SYSTEM  🏏       |")
+    print("|          T20 Match · Regression + Classification         |")
+    print("+==========================================================+")
     print()
 
 
@@ -69,20 +69,20 @@ def _get_crr(current_score: int, overs_completed: float) -> float:
     return float(override) if override else auto
 
 
-# ── 1st innings output ────────────────────────────────────────────────────────
+# -- 1st innings output --------------------------------------------------------
 
 def _print_score_result(batting_team: str, current_score: int,
                         overs_completed: float, wickets_fallen: int,
                         result: dict) -> None:
     W = 60
     print()
-    print("╔" + "═" * W + "╗")
-    print("║" + "  SCORE PREDICTION RESULT".center(W) + "║")
-    print("╠" + "═" * W + "╣")
+    print("+" + "=" * W + "+")
+    print("|" + "  SCORE PREDICTION RESULT".center(W) + "|")
+    print("+" + "=" * W + "+")
 
     def row(label: str, value) -> None:
         line = f"  {label:<28}: {str(value)}"
-        print("║" + line.ljust(W) + "║")
+        print("|" + line.ljust(W) + "|")
 
     row("Batting Team", batting_team)
     row("Current Score", current_score)
@@ -90,16 +90,16 @@ def _print_score_result(batting_team: str, current_score: int,
     row("Wickets Fallen", wickets_fallen)
     row("Remaining Overs", result["remaining_overs"])
     row("Wickets in Hand", result["wickets_in_hand"])
-    print("╠" + "═" * W + "╣")
+    print("+" + "=" * W + "+")
     row("🎯 Predicted Final Score", result["predicted_score"])
     conf = f"{result['lower_bound']} – {result['upper_bound']}"
     row("📊 Confidence Range", conf)
     row("📈 Simple CRR Projection", result["projected_score_crr"])
-    print("╚" + "═" * W + "╝")
+    print("+" + "=" * W + "+")
     print()
 
 
-# ── 2nd innings output ────────────────────────────────────────────────────────
+# -- 2nd innings output --------------------------------------------------------
 
 def _print_full_result(batting_team: str, bowling_team: str,
                        current_score: int, overs_completed: float,
@@ -107,13 +107,13 @@ def _print_full_result(batting_team: str, bowling_team: str,
                        result: dict) -> None:
     W = 60
     print()
-    print("╔" + "═" * W + "╗")
-    print("║" + "  FULL PREDICTION RESULT (2nd Innings)".center(W) + "║")
-    print("╠" + "═" * W + "╣")
+    print("+" + "=" * W + "+")
+    print("|" + "  FULL PREDICTION RESULT (2nd Innings)".center(W) + "|")
+    print("+" + "=" * W + "+")
 
     def row(label: str, value) -> None:
         line = f"  {label:<28}: {str(value)}"
-        print("║" + line.ljust(W) + "║")
+        print("|" + line.ljust(W) + "|")
 
     row("Batting Team", batting_team)
     row("Bowling Team", bowling_team)
@@ -123,25 +123,25 @@ def _print_full_result(batting_team: str, bowling_team: str,
     row("Wickets Fallen", wickets_fallen)
     row("Remaining Overs", result["remaining_overs"])
     row("Wickets in Hand", result["wickets_in_hand"])
-    print("╠" + "═" * W + "╣")
+    print("+" + "=" * W + "+")
     row("Runs Required", result["runs_required"])
     row("Balls Remaining", result["balls_remaining"])
     row("Required Run Rate", f"{result['required_run_rate']:.2f}")
     row("Pressure Index", f"{result['pressure_index']:.2f}  (>1 = under pressure)")
-    print("╠" + "═" * W + "╣")
+    print("+" + "=" * W + "+")
     row("🎯 Predicted Final Score", result["predicted_score"])
     conf = f"{result['lower_bound']} – {result['upper_bound']}"
     row("📊 Confidence Range", conf)
     row("📈 Simple CRR Projection", result["projected_score_crr"])
-    print("╠" + "═" * W + "╣")
+    print("+" + "=" * W + "+")
     row("🏆 Predicted Winner", result["winner"])
     row(f"📈 {batting_team[:20]} Win%", f"{result['batting_team_prob']}%")
     row(f"📉 {bowling_team[:20]} Win%", f"{result['bowling_team_prob']}%")
-    print("╚" + "═" * W + "╝")
+    print("+" + "=" * W + "+")
     print()
 
 
-# ── Main prediction flow ──────────────────────────────────────────────────────
+# -- Main prediction flow ------------------------------------------------------
 
 def run_prediction() -> None:
     from predict import predict_score, predict_full
@@ -167,7 +167,7 @@ def run_prediction() -> None:
     wickets       = _get_int("Wickets fallen (0–10)", 0, 10)
     crr           = _get_crr(current_score, overs)
 
-    print("\n  Predicting …", end=" ", flush=True)
+    print("\n  Predicting ...", end=" ", flush=True)
 
     try:
         if innings == 1:
@@ -206,14 +206,14 @@ def run_prediction() -> None:
         run_prediction()
 
 
-# ── Training orchestrator ─────────────────────────────────────────────────────
+# -- Training orchestrator -----------------------------------------------------
 
 def run_training() -> None:
     import subprocess
 
     data_path = os.path.join(_ROOT, "data", "matches.csv")
     if not os.path.exists(data_path):
-        print("[i] matches.csv not found — generating sample data …")
+        print("[i] matches.csv not found — generating sample data ...")
         subprocess.run(
             [sys.executable,
              os.path.join(_ROOT, "data", "generate_sample_data.py")],
@@ -228,7 +228,7 @@ def run_training() -> None:
     train_clf(csv_path=data_path)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# -- Entry point ---------------------------------------------------------------
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -249,7 +249,7 @@ def main() -> None:
     clf_missing = not os.path.exists(os.path.join(_ROOT, "model", "classifier.pkl"))
 
     if reg_missing or clf_missing:
-        print("[i] One or more models missing — running full training pipeline …\n")
+        print("[i] One or more models missing — running full training pipeline ...\n")
         run_training()
 
     run_prediction()

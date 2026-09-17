@@ -3,9 +3,9 @@ predict.py
 ----------
 Unified prediction module.
 
-predict_score()   → regression  (both innings)
-predict_winner()  → classification (2nd innings only)
-predict_full()    → both combined  (2nd innings)
+predict_score()   -> regression  (both innings)
+predict_winner()  -> classification (2nd innings only)
+predict_full()    -> both combined  (2nd innings)
 """
 
 import os
@@ -16,7 +16,7 @@ import pandas as pd
 from preprocess import get_encoders
 from features import build_regression_row, build_classification_row
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 _SRC_DIR        = os.path.dirname(__file__)
 MODEL_PATH      = os.path.join(_SRC_DIR, "..", "model", "model.pkl")
 CLASSIFIER_PATH = os.path.join(_SRC_DIR, "..", "model", "classifier.pkl")
@@ -24,7 +24,7 @@ CLASSIFIER_PATH = os.path.join(_SRC_DIR, "..", "model", "classifier.pkl")
 DEFAULT_MARGIN  = 10   # ± runs shown in confidence range
 
 
-# ── Loaders ───────────────────────────────────────────────────────────────────
+# -- Loaders -------------------------------------------------------------------
 
 def _load_regressor():
     if not os.path.exists(MODEL_PATH):
@@ -59,7 +59,7 @@ def _encode_teams(batting_team: str, bowling_team: str) -> tuple[int, int]:
     return _enc("batting_team", batting_team), _enc("bowling_team", bowling_team)
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# -- Public API ----------------------------------------------------------------
 
 def predict_score(
     current_score: int,

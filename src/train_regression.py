@@ -23,27 +23,27 @@ import seaborn as sns
 from preprocess import load_data, clean_data, encode_teams
 from features import engineer_features, get_feature_matrix, REGRESSION_FEATURES
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 _SRC_DIR  = os.path.dirname(__file__)
 DATA_PATH = os.path.join(_SRC_DIR, "..", "data", "matches.csv")
 MODEL_DIR = os.path.join(_SRC_DIR, "..", "model")
 MODEL_PATH = os.path.join(MODEL_DIR, "model.pkl")
 
-# ── Hyper-parameters ──────────────────────────────────────────────────────────
+# -- Hyper-parameters ----------------------------------------------------------
 TEST_SIZE      = 0.2
 RANDOM_STATE   = 42
 RF_ESTIMATORS  = 200
 RF_MAX_DEPTH   = 12
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 def _evaluate(name: str, model, X_test, y_test) -> dict:
     preds = model.predict(X_test)
     mae   = mean_absolute_error(y_test, preds)
     r2    = r2_score(y_test, preds)
-    print(f"\n  ┌── {name}")
-    print(f"  │   MAE  : {mae:.2f} runs")
-    print(f"  └── R²   : {r2:.4f}")
+    print(f"\n  +-- {name}")
+    print(f"  |   MAE  : {mae:.2f} runs")
+    print(f"  +-- R²   : {r2:.4f}")
     return {"name": name, "model": model, "preds": preds, "mae": mae, "r2": r2}
 
 
@@ -60,7 +60,7 @@ def _plot_importance(model: RandomForestRegressor) -> None:
     plt.tight_layout()
     path = os.path.join(MODEL_DIR, "feature_importance.png")
     plt.savefig(path, dpi=150)
-    print(f"[✓] Feature importance chart → {path}")
+    print(f"[OK] Feature importance chart -> {path}")
     plt.close()
 
 
@@ -80,11 +80,11 @@ def _plot_predictions(results: list, y_test: pd.Series) -> None:
     plt.tight_layout()
     path = os.path.join(MODEL_DIR, "predictions_vs_actual.png")
     plt.savefig(path, dpi=150)
-    print(f"[✓] Predictions-vs-actual chart → {path}")
+    print(f"[OK] Predictions-vs-actual chart -> {path}")
     plt.close()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     print("=" * 58)
     print("  CRICKET PREDICTOR – REGRESSION MODEL TRAINING")
@@ -104,31 +104,31 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     )
     print(f"[i] Train / Test split : {len(X_train)} / {len(X_test)}")
 
-    print("\n[*] Training Linear Regression …")
+    print("\n[*] Training Linear Regression ...")
     lr = LinearRegression()
     lr.fit(X_train, y_train)
 
-    print("[*] Training Random Forest Regressor …")
+    print("[*] Training Random Forest Regressor ...")
     rf = RandomForestRegressor(
         n_estimators=RF_ESTIMATORS, max_depth=RF_MAX_DEPTH,
         random_state=RANDOM_STATE, n_jobs=-1,
     )
     rf.fit(X_train, y_train)
 
-    print("\n── Regression Evaluation ─────────────────────────────")
+    print("\n-- Regression Evaluation -----------------------------")
     lr_res = _evaluate("Linear Regression",       lr, X_test, y_test)
     rf_res = _evaluate("Random Forest Regressor", rf, X_test, y_test)
 
     best = rf_res if rf_res["mae"] <= lr_res["mae"] else lr_res
-    print(f"\n[✓] Best regression model : {best['name']}  (MAE={best['mae']:.2f})")
+    print(f"\n[OK] Best regression model : {best['name']}  (MAE={best['mae']:.2f})")
 
     os.makedirs(MODEL_DIR, exist_ok=True)
     with open(MODEL_PATH, "wb") as f:
         pickle.dump(best["model"], f)
-    print(f"[✓] Saved → {MODEL_PATH}")
+    print(f"[OK] Saved -> {MODEL_PATH}")
 
     if visualize:
-        print("\n[*] Generating charts …")
+        print("\n[*] Generating charts ...")
         _plot_importance(rf)
         _plot_predictions([lr_res, rf_res], y_test)
 
@@ -138,6 +138,6 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     return best["mae"]   # returned so orchestrator can store margin
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     train()

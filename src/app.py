@@ -2,8 +2,8 @@
 app.py  (Bonus – Flask REST API)
 ---------------------------------
 Two endpoints:
-  POST /predict/score   →  regression  (1st or 2nd innings)
-  POST /predict/winner  →  classification + score (2nd innings)
+  POST /predict/score   ->  regression  (1st or 2nd innings)
+  POST /predict/winner  ->  classification + score (2nd innings)
 
 Run:
     python src/app.py

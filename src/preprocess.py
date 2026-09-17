@@ -34,7 +34,7 @@ def load_data(csv_path: str) -> pd.DataFrame:
         )
 
     df = pd.read_csv(csv_path)
-    print(f"[✓] Loaded dataset: {df.shape[0]} rows, {df.shape[1]} columns")
+    print(f"[OK] Loaded dataset: {df.shape[0]} rows, {df.shape[1]} columns")
 
     missing = [c for c in REQUIRED_COLUMNS + [TARGET_COLUMN] if c not in df.columns]
     if missing:
@@ -87,7 +87,7 @@ def encode_teams(
             df[col] = le.fit_transform(df[col].astype(str))
             encoders[col] = le
         _save_encoders(encoders)
-        print("[✓] Team encoders fitted and saved.")
+        print("[OK] Team encoders fitted and saved.")
     else:
         if encoders is None:
             encoders = _load_encoders()

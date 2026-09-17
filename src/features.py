@@ -3,8 +3,8 @@ features.py
 -----------
 Feature engineering for both innings.
 
-1st innings  →  score projection features only
-2nd innings  →  adds chase-specific features:
+1st innings  ->  score projection features only
+2nd innings  ->  adds chase-specific features:
                 runs_required, balls_remaining,
                 required_run_rate, pressure_index
 """
@@ -15,7 +15,7 @@ import numpy as np
 TOTAL_OVERS = 20.0
 AVERAGE_T20_RR = 7.5
 
-# ── Feature sets ──────────────────────────────────────────────────────────────
+# -- Feature sets --------------------------------------------------------------
 
 # Used by the regression model (score prediction) – works for both innings
 REGRESSION_FEATURES = [
@@ -27,7 +27,7 @@ REGRESSION_FEATURES = [
     "current_run_rate",
     "remaining_overs",        # engineered
     "wickets_in_hand",        # engineered
-    "projected_score",        # engineered: CRR × 20
+    "projected_score",        # engineered: CRR x 20
     "scoring_rate_factor",    # engineered: CRR / avg T20 RR
 ]
 
@@ -53,7 +53,7 @@ CLASSIFICATION_FEATURES = [
 FEATURE_COLUMNS = REGRESSION_FEATURES
 
 
-# ── Core engineering ──────────────────────────────────────────────────────────
+# -- Core engineering ----------------------------------------------------------
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -89,7 +89,7 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ── Feature matrix helpers ────────────────────────────────────────────────────
+# -- Feature matrix helpers ----------------------------------------------------
 
 def get_feature_matrix(
     df: pd.DataFrame,
@@ -108,7 +108,7 @@ def get_feature_matrix(
     return X, y
 
 
-# ── Single-row builders for inference ────────────────────────────────────────
+# -- Single-row builders for inference ----------------------------------------
 
 def build_regression_row(
     current_score: int,
@@ -156,5 +156,5 @@ def build_classification_row(
     return X
 
 
-# ── Keep old name as alias so existing callers don't break ───────────────────
+# -- Keep old name as alias so existing callers don't break -------------------
 build_prediction_row = build_regression_row

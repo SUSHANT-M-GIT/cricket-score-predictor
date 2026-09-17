@@ -35,19 +35,19 @@ import seaborn as sns
 from preprocess import load_data, clean_data, encode_teams, get_encoders
 from features import engineer_features, get_feature_matrix, CLASSIFICATION_FEATURES
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# -- Paths ---------------------------------------------------------------------
 _SRC_DIR        = os.path.dirname(__file__)
 DATA_PATH       = os.path.join(_SRC_DIR, "..", "data", "matches.csv")
 MODEL_DIR       = os.path.join(_SRC_DIR, "..", "model")
 CLASSIFIER_PATH = os.path.join(MODEL_DIR, "classifier.pkl")
 SCALER_PATH     = os.path.join(MODEL_DIR, "scaler.pkl")
 
-# ── Hyper-parameters ──────────────────────────────────────────────────────────
+# -- Hyper-parameters ----------------------------------------------------------
 TEST_SIZE    = 0.2
 RANDOM_STATE = 42
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 def _make_winner_label(df: pd.DataFrame) -> pd.Series:
     """
     Binary label: 1 = batting team wins the match, 0 = bowling team wins.
@@ -64,9 +64,9 @@ def _evaluate_classifier(name: str, model, X_test, y_test, scaler=None) -> dict:
     cm      = confusion_matrix(y_test, preds)
     report  = classification_report(y_test, preds, target_names=["Bowling Team Wins", "Batting Team Wins"])
 
-    print(f"\n  ┌── {name}")
-    print(f"  │   Accuracy : {acc * 100:.2f}%")
-    print(f"  └── Confusion Matrix:\n")
+    print(f"\n  +-- {name}")
+    print(f"  |   Accuracy : {acc * 100:.2f}%")
+    print(f"  +-- Confusion Matrix:\n")
     print("       Predicted: Lose  Win")
     for i, row in enumerate(cm):
         label = "Actual Lose:" if i == 0 else "Actual Win :"
@@ -97,7 +97,7 @@ def _plot_confusion_matrices(results: list, labels: list[str]) -> None:
     plt.tight_layout()
     path = os.path.join(MODEL_DIR, "confusion_matrices.png")
     plt.savefig(path, dpi=150)
-    print(f"[✓] Confusion matrix chart → {path}")
+    print(f"[OK] Confusion matrix chart -> {path}")
     plt.close()
 
 
@@ -114,17 +114,17 @@ def _plot_feature_importance_clf(model: RandomForestClassifier) -> None:
     plt.tight_layout()
     path = os.path.join(MODEL_DIR, "classifier_feature_importance.png")
     plt.savefig(path, dpi=150)
-    print(f"[✓] Classifier feature importance chart → {path}")
+    print(f"[OK] Classifier feature importance chart -> {path}")
     plt.close()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     print("=" * 58)
     print("  CRICKET PREDICTOR – CLASSIFICATION MODEL TRAINING")
     print("=" * 58)
 
-    # ── Load full dataset ──────────────────────────────────────────────────
+    # -- Load full dataset --------------------------------------------------
     df_raw = load_data(csv_path)
     df_raw = clean_data(df_raw)
 
@@ -134,7 +134,7 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     # Use the encoders already saved by train_regression.py (fit=False)
     df_enc, encoders = encode_teams(df_raw, fit=False)
 
-    # ── Keep only 2nd-innings rows ─────────────────────────────────────────
+    # -- Keep only 2nd-innings rows -----------------------------------------
     if "innings" not in df_enc.columns:
         raise ValueError(
             "Dataset must have an 'innings' column (1 or 2). "
@@ -143,41 +143,41 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     df2 = df_enc[df_enc["innings"] == 2].copy()
     print(f"[i] 2nd-innings rows for classification : {len(df2)}")
 
-    # ── Build label ────────────────────────────────────────────────────────
+    # -- Build label --------------------------------------------------------
     df2 = df2.reset_index(drop=True)
     y = _make_winner_label(df2)
     print(f"[i] Label balance – Batting wins: {y.sum()}  |  Bowling wins: {(y == 0).sum()}")
 
-    # ── Feature engineering ────────────────────────────────────────────────
+    # -- Feature engineering ------------------------------------------------
     df2 = engineer_features(df2)
     X, _ = get_feature_matrix(df2, CLASSIFICATION_FEATURES)
     print(f"[i] Features : {list(X.columns)}")
 
-    # ── Train / test split ─────────────────────────────────────────────────
+    # -- Train / test split -------------------------------------------------
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
     print(f"[i] Train / Test : {len(X_train)} / {len(X_test)}")
 
-    # ── Scale for Logistic Regression ──────────────────────────────────────
+    # -- Scale for Logistic Regression --------------------------------------
     scaler = StandardScaler()
     X_train_sc = scaler.fit_transform(X_train)
     X_test_sc  = scaler.transform(X_test)
 
-    # ── Train models ───────────────────────────────────────────────────────
-    print("\n[*] Training Logistic Regression …")
+    # -- Train models -------------------------------------------------------
+    print("\n[*] Training Logistic Regression ...")
     lr_clf = LogisticRegression(max_iter=1000, random_state=RANDOM_STATE)
     lr_clf.fit(X_train_sc, y_train)
 
-    print("[*] Training Random Forest Classifier …")
+    print("[*] Training Random Forest Classifier ...")
     rf_clf = RandomForestClassifier(
         n_estimators=200, max_depth=12,
         random_state=RANDOM_STATE, n_jobs=-1,
     )
     rf_clf.fit(X_train, y_train)
 
-    # ── Evaluate ───────────────────────────────────────────────────────────
-    print("\n── Classification Evaluation ─────────────────────────")
+    # -- Evaluate -----------------------------------------------------------
+    print("\n-- Classification Evaluation -------------------------")
     lr_res = _evaluate_classifier(
         "Logistic Regression", lr_clf, X_test, y_test, scaler=scaler
     )
@@ -185,7 +185,7 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
         "Random Forest Classifier", rf_clf, X_test, y_test, scaler=None
     )
 
-    # ── Pick best (higher accuracy) ────────────────────────────────────────
+    # -- Pick best (higher accuracy) ----------------------------------------
     best = rf_res if rf_res["acc"] >= lr_res["acc"] else lr_res
     # Store scaler alongside LR model so predict.py can apply it
     save_bundle = {
@@ -193,7 +193,7 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
         "scaler": best["scaler"],   # None for RF, StandardScaler for LR
         "model_name": best["name"],
     }
-    print(f"\n[✓] Best classifier : {best['name']}  (Acc={best['acc']*100:.2f}%)")
+    print(f"\n[OK] Best classifier : {best['name']}  (Acc={best['acc']*100:.2f}%)")
 
     os.makedirs(MODEL_DIR, exist_ok=True)
     with open(CLASSIFIER_PATH, "wb") as f:
@@ -201,10 +201,10 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     # Save scaler separately too (for safe reuse)
     with open(SCALER_PATH, "wb") as f:
         pickle.dump(scaler, f)
-    print(f"[✓] Classifier saved → {CLASSIFIER_PATH}")
+    print(f"[OK] Classifier saved -> {CLASSIFIER_PATH}")
 
     if visualize:
-        print("\n[*] Generating charts …")
+        print("\n[*] Generating charts ...")
         _plot_confusion_matrices(
             [lr_res, rf_res],
             labels=["Bowling Wins", "Batting Wins"],
@@ -216,6 +216,6 @@ def train(csv_path: str = DATA_PATH, visualize: bool = True) -> None:
     print("=" * 58)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     train()
